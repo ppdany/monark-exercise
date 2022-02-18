@@ -1,49 +1,59 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import styled from "styled-components";
-import userPic from "../images/PpDany.jpg";
+import UserDataForm from "./UserDataForm";
 
 export default function ProfileCard() {
   const [userData, setUserData] = useState({});
+  //   const [postResults, setPostResults] = useState({});
+  //   const toggleState = useRef(null);
+
+  const url = "https://randomuser.me/api";
+  const fetchUserData = async () => {
+    try {
+      console.log("fetching user");
+      const response = await fetch(url);
+      const jsonData = await response.json();
+      const data = jsonData.results[0];
+
+      const {
+        name: {first, last},
+        location: {city, state, country, postcode},
+        email,
+        phone,
+        picture: {medium: image},
+        gender,
+      } = data;
+
+      const person = {
+        firstName: `${first}`,
+        lastName: `${last}`,
+        city,
+        state,
+        country,
+        postcode,
+        email,
+        phone,
+        image,
+        gender,
+      };
+      setUserData(person);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
 
   useEffect(() => {
-    const url = "https://randomuser.me/api";
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch(url);
-        const jsonData = await response.json();
-        const data = jsonData.results[0];
-
-        const {
-          name: {first, last},
-          location: {city, state, country, postcode},
-          email,
-          phone,
-          picture: {medium: image},
-          gender,
-        } = data;
-
-        const person = {
-          firstName: `${first}`,
-          lastName: `${last}`,
-          city,
-          state,
-          country,
-          postcode,
-          email,
-          phone,
-          image,
-          gender,
-        };
-        setUserData(person);
-      } catch (error) {
-        console.log("error", error);
-      }
-    };
-
     fetchUserData();
   }, []);
 
-  //   console.log(userData);
+  //   const checkToggle = (event) => {
+  //     console.log("current toggle is: ", toggleState);
+  //   };
+
+  //   const showPOSTResults = (postResults) => {
+  //     setPostResults(postResults);
+  //   };
+
   return (
     <Wrapper>
       <EditBtn>Edit</EditBtn>
@@ -60,26 +70,9 @@ export default function ProfileCard() {
           <Title>Profile image</Title>
           <Title>Gender</Title>
         </TitlesWrapper>
-        <DataWrapper>
-          {/* <Info placeholder="Jane"></Info> */}
-          <Info placeholder={userData.firstName}></Info>
-          {/* <Info placeholder="Doe"></Info> */}
-          <Info placeholder={userData.lastName}></Info>
-          {/* <Info placeholder="Dallas"></Info> */}
-          <Info placeholder={userData.city}></Info>
-          {/* <Info placeholder="Texas"></Info> */}
-          <Info placeholder={userData.state}></Info>
-          {/* <Info placeholder="USA"></Info> */}
-          <Info placeholder={userData.country}></Info>
-          {/* <Info placeholder="55123"></Info> */}
-          <Info placeholder={userData.postcode}></Info>
-          {/* <Info placeholder="j.doe@test.com"></Info> */}
-          <Info placeholder={userData.email}></Info>
-          {/* <Info placeholder="+112345678990"></Info> */}
-          <Info placeholder={userData.phone}></Info>
-          <ProfileImage src={(userData && userData.image) || {userPic}} alt="profile-image"></ProfileImage>
-          <Toggle></Toggle>
-        </DataWrapper>
+        <UserDataForm userData={userData} />
+        {/* <UserDataForm userData={userData} callback={showPOSTResults} /> */}
+        {/* <PostResults>{JSON.stringify(postResults)}</PostResults> */}
       </ProfileWrapper>
     </Wrapper>
   );
@@ -94,14 +87,11 @@ const EditBtn = styled.button`
   text-align: left;
   width: 100px;
   padding: 16px 0px;
-`;
 
-const Toggle = styled.button`
-  border: none;
-  border-radius: 30px;
-  width: 50px;
-  height: 30px;
-  background: #32d74b;
+  :hover {
+    color: black;
+    cursor: pointer;
+  }
 `;
 
 const Wrapper = styled.div`
@@ -122,12 +112,6 @@ const TitlesWrapper = styled.div`
   justify-items: left;
 `;
 
-const DataWrapper = styled.div`
-  display: grid;
-  align-items: end;
-  justify-items: right;
-`;
-
 const Title = styled.h2`
   display: grid;
   align-items: center;
@@ -138,25 +122,9 @@ const Title = styled.h2`
   padding: 16px 0;
 `;
 
-const Info = styled.input`
-  display: grid;
-  align-items: center;
-  width: 90%;
-  border: none;
-  border-bottom: 2px solid #c7c7c7;
-  padding: 6px;
-  text-align: right;
-  font-size: 24px;
-  font-weight: 700;
-  text-align: right;
-  color: #101010;
-
-  :focus {
-    outline: none;
-  }
-`;
-
-const ProfileImage = styled.img`
-  width: 50px;
-  border-radius: 50%;
+const PostResults = styled.p`
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.5;
+  padding: 16px 0;
 `;
